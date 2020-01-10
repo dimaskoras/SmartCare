@@ -1,3 +1,15 @@
+#include "HX711.h"
+#include <Wire.h> // библиотека для управления устройствами по I2C 
+#include <LiquidCrystal_I2C.h> // подключаем библиотеку для LCD 1602
+#include <dht11.h> // подключаем библиотеку для DHT11
+#define DHT11PIN 2 // сигнал DHT11 подключаем к 2-му цифровому выводу
+
+float side;
+LiquidCrystal_I2C lcd(0x3F,20,4); 
+ 
+dht11 DHT11;
+
+
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
 
@@ -28,14 +40,14 @@ static const uint8_t D10  = 1;
 
 const int keysPin[4] = {
   16,5,4,0
-}
+};
 const int dataPin[4] = {
   14,12,13,15
-}
+};
 static const int pot[2] = {
   3,1
-}
-char **comm = new char[4];
+};
+char **comm = new char*[4];
 namespace request{
   void dht();
   void net();
@@ -43,7 +55,22 @@ namespace request{
   void chooser();
 }
 namespace out{
-  void lcd();
+  void lcdd(){
+    
+  int chk = DHT11.read(DHT11PIN);
+  lcd.setCursor(0, 0);
+  lcd.print("Temp:    "); 
+  lcd.print((float)DHT11.temperature, 2);
+  lcd.print(" \1C ");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Weight:    "); 
+  lcd.print(side);
+  lcd.print(" KG ");
+  delay(1000);
+
+    
+  }
   void net();
   void saveSD();
   void relay();
@@ -52,8 +79,12 @@ void setup() {
   // put your setup code here, to run once:
   for(int i = 0; i < 4; i++)
     comm[i] = new char;
+ lcd.begin (20,4);
+//  dht.begin();
+  lcd.createChar(1, 1);
+  lcd.init();
+  lcd.backlight(); 
 }
-
 void loop() {
   // put your main code here, to run repeatedly:
 
